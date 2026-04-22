@@ -1,6 +1,7 @@
 import { fetchMarkets, fetchHistory } from "./api.js";
 import { renderCards, setActiveCard, updateCountdown } from "./ui.js";
 import { renderChart, hideChart, initChartControls } from "./chart.js";
+import { onAuthChange, logoutUser } from "./firebase.js";
 
 const REFRESH_INTERVAL = 60;
 
@@ -11,6 +12,23 @@ let countdown = REFRESH_INTERVAL;
 let countdownTimer = null;
 
 const currencySelector = document.getElementById("currency-selector");
+const logoutBtn = document.getElementById("logout-btn");
+const userNameEl = document.getElementById("user-name");
+
+onAuthChange((user) => {
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+  userNameEl.textContent = user.displayName ?? user.email;
+  loadMarkets();
+  startCountdown();
+});
+
+logoutBtn.addEventListener("click", async () => {
+  clearInterval(countdownTimer);
+  await logoutUser();
+});
 
 async function loadMarkets() {
   try {
@@ -36,7 +54,7 @@ async function loadChart(coin, days) {
   }
 }
 
-function handleCardClick(coin, _cardEl) {
+function handleCardClick(coin) {
   if (selectedCoin?.id === coin.id) {
     selectedCoin = null;
     hideChart();
@@ -77,6 +95,3 @@ initChartControls((days) => {
   selectedDays = days;
   if (selectedCoin) loadChart(selectedCoin, selectedDays);
 });
-
-loadMarkets();
-startCountdown();
