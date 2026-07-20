@@ -1,5 +1,5 @@
 import { fetchMarkets, fetchHistory } from "./api.js";
-import { renderCards, setActiveCard, updateCountdown } from "./ui.js";
+import { renderCards, setActiveCard, updateCountdown, renderError } from "./ui.js";
 import { renderChart, hideChart, initChartControls } from "./chart.js";
 import { onAuthChange, logoutUser } from "./firebase.js";
 
@@ -41,13 +41,14 @@ async function loadMarkets() {
     }
   } catch (err) {
     console.error("Failed to load markets:", err);
+    renderError("Couldn't load market data. It will retry automatically on the next refresh.");
   }
 }
 
 async function loadChart(coin, days) {
   try {
     const history = await fetchHistory(coin.id, currency, days);
-    renderChart(coin, history, currency);
+    renderChart(coin, history, currency, days);
     setActiveCard(coin.id);
   } catch (err) {
     console.error("Failed to load chart:", err);
@@ -76,12 +77,12 @@ function startCountdown() {
 
   countdownTimer = setInterval(() => {
     countdown -= 1;
-    updateCountdown(countdown);
     if (countdown <= 0) {
       countdown = REFRESH_INTERVAL;
       loadMarkets();
       if (selectedCoin) loadChart(selectedCoin, selectedDays);
     }
+    updateCountdown(countdown);
   }, 1000);
 }
 

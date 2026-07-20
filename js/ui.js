@@ -43,6 +43,10 @@ export function renderCards(coins, currency, onCardClick) {
   });
 }
 
+export function renderError(message) {
+  grid.innerHTML = `<div class="cards-error">${message}</div>`;
+}
+
 export function setActiveCard(coinId) {
   document.querySelectorAll(".crypto-card").forEach((card) => {
     card.classList.toggle("active", card.dataset.id === coinId);

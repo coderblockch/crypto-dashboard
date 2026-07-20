@@ -17,11 +17,12 @@ export function initChartControls(onRangeChange) {
   });
 }
 
-export function renderChart(coin, historyData, currency) {
+export function renderChart(coin, historyData, currency, days = 1) {
   const prices = historyData.prices;
+  const useTimeLabels = days <= 1;
   const labels = prices.map(([timestamp]) => {
     const date = new Date(timestamp);
-    return prices.length <= 48
+    return useTimeLabels
       ? date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })
       : date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   });
